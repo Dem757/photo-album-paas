@@ -1,37 +1,158 @@
-<h2>Fényképalbum</h2>
+<style>
+  .gallery-page {
+    max-width: 1100px;
+    margin: 18px auto;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .sort-links a {
+    color: #0366d6;
+    text-decoration: none;
+    margin-right: 8px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f6f8fa;
+    color: #111;
+    text-decoration: none;
+  }
+  .btn.primary {
+    background: #0366d6;
+    color: #fff;
+    border-color: #0366d6;
+  }
+  .btn.danger {
+    background: #e55353;
+    color: #fff;
+    border-color: #e55353;
+  }
+  .photo-grid {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .photo-card {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+  }
+  .photo-thumb {
+    width: 100%;
+    height: 150px;
+    display: block;
+    object-fit: cover;
+    background: #f0f0f0;
+  }
+  .photo-meta {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .photo-title {
+    font-weight: 600;
+    color: #222;
+  }
+  .photo-time {
+    font-size: 0.9em;
+    color: #666;
+  }
+  .photo-actions {
+    margin-top: 6px;
+  }
+  .notice {
+    padding: 12px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 6px;
+  }
+  @media (max-width: 520px) {
+    .photo-thumb {
+      height: 120px;
+    }
+    .gallery-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
 
-<div>
-    Rendezés: 
-    <a href="?sort=name">Név (A-Z)</a> | 
-    <a href="?sort=-uploaded_at">Legfrissebb elől</a>
-</div>
+<div class="gallery-page">
+  <div class="gallery-header">
+    <h2 style="margin: 0">Fényképalbum</h2>
+    <div class="controls">
+      <div class="sort-links">
+        Rendezés:
+        <a href="?sort=name">Név (A-Z)</a>
+        <a href="?sort=-uploaded_at">Legfrissebb elől</a>
+      </div>
+      {% if user.is_authenticated %}
+      <span style="margin-left: 8px; color: #555"
+        >Üdv, {{ user.username }}!</span
+      >
+      <a class="btn" href="{% url 'logout' %}">Kijelentkezés</a>
+      <a class="btn primary" href="{% url 'photo_upload' %}"
+        >Új kép feltöltése</a
+      >
+      {% else %}
+      <a class="btn" href="{% url 'login' %}">Bejelentkezés</a>
+      <a class="btn" href="{% url 'register' %}">Regisztráció</a>
+      {% endif %}
+    </div>
+  </div>
 
-<hr>
+  <hr />
 
-{% if user.is_authenticated %}
-    <p>Üdv, {{ user.username }}! <a href="{% url 'logout' %}">Kijelentkezés</a></p>
-    <a href="{% url 'photo_upload' %}">Új kép feltöltése</a>
-{% else %}
-    <p><a href="{% url 'login' %}">Bejelentkezés</a> vagy <a href="{% url 'register' %}">Regisztráció</a></p>
-{% endif %}
-
-<ul>
-{% for photo in photos %}
-    <li>
-        <strong>{{ photo.name }}</strong> 
-        ({{ photo.uploaded_at|date:"Y-m-d H:i" }})
-        <br>
-        <a href="{{ photo.image.url }}">
-            <img src="{{ photo.image.url }}" width="100" alt="{{ photo.name }}">
-        </a>
-        {% if user.is_authenticated and photo.user == user %}
-            <form action="{% url 'photo_delete' photo.pk %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Törlés</button>
-            </form>
-        {% endif %}
+  <ul class="photo-grid">
+    {% for photo in photos %}
+    <li class="photo-card">
+      <a class="thumb-link" href="{{ photo.image.url }}">
+        <img
+          class="photo-thumb"
+          src="{{ photo.image.url }}"
+          alt="{{ photo.name }}"
+        />
+      </a>
+      <div class="photo-meta">
+        <div class="photo-title">{{ photo.name }}</div>
+        <div class="photo-time">{{ photo.uploaded_at|date:"Y-m-d H:i" }}</div>
+        <div class="photo-actions">
+          {% if user.is_authenticated and photo.user == user %}
+          <form
+            action="{% url 'photo_delete' photo.pk %}"
+            method="post"
+            style="display: inline"
+          >
+            {% csrf_token %}
+            <button class="btn danger" type="submit">Törlés</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
     </li>
-{% empty %}
-    <li>Még nincs kép feltöltve.</li>
-{% endfor %}
-</ul>
+    {% empty %}
+    <li class="notice">Még nincs kép feltöltve.</li>
+    {% endfor %}
+  </ul>
+</div>
