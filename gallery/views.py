@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Photo
 from .forms import PhotoForm, UserRegisterForm
 from django.contrib import messages
+from django.contrib.auth import logout
+from django.shortcuts import HttpResponse
 
 def photo_list(request):
     sort_by = request.GET.get('sort', '-uploaded_at') # Alapértelmezett: legfrissebb előre
@@ -39,3 +41,11 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'gallery/register.html', {'form': form})
+
+
+def logout_view(request):
+    """Require POST to log out; show confirmation on GET."""
+    if request.method == 'POST':
+        logout(request)
+        return redirect('photo_list')
+    return render(request, 'registration/logout_confirm.html')

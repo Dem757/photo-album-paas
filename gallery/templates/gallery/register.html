@@ -61,6 +61,11 @@
         background: #e6ffed;
         border: 1px solid #b7f0c8;
       }
+      .error {
+        color: #b00020;
+        margin-top: 6px;
+        font-size: 0.95em;
+      }
     </style>
   </head>
   <body>
@@ -72,21 +77,25 @@
         {% endfor %} {% endif %}
       </div>
       <form method="post">
-        {% csrf_token %} {{ form.non_field_errors }}
+        {% csrf_token %} {% if form.non_field_errors %}
+        <div class="error">{{ form.non_field_errors }}</div>
+        {% endif %}
         <div class="form-row">
-          {{ form.username.label_tag }} {{ form.username }} {{
-          form.username.errors }}
+          {{ form.username.label_tag }} {{ form.username }}
+          {% if form.username.errors %}<div class="error">{{ form.username.errors }}</div>{% endif %}
         </div>
         <div class="form-row">
-          {{ form.email.label_tag }} {{ form.email }} {{ form.email.errors }}
+          {{ form.email.label_tag }} {{ form.email }} {% if form.email.errors %}
+          <div class="error">{{ form.email.errors }}</div>
+          {% endif %}
         </div>
         <div class="form-row">
-          {{ form.password1.label_tag }} {{ form.password1 }} {{
-          form.password1.errors }}
+          {{ form.password1.label_tag }} {{ form.password1 }}
+          {% if form.password1.errors %}<div class="error">{{ form.password1.errors }}</div>{% endif %}
         </div>
         <div class="form-row">
-          {{ form.password2.label_tag }} {{ form.password2 }} {{
-          form.password2.errors }}
+          {{ form.password2.label_tag }} {{ form.password2 }}
+          {% if form.password2.errors %}<div class="error">{{ form.password2.errors }}</div>{% endif %}
         </div>
         <div class="actions">
           <button class="btn" type="submit">Regisztrálok</button>

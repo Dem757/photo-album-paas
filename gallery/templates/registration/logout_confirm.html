@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kijelentkezés</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f7f7f8;
+        color: #222;
+        padding: 18px;
+      }
+      .card {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 18px;
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        border-radius: 8px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .btn {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        background: #0366d6;
+        color: #fff;
+        text-decoration: none;
+      }
+      .btn.ghost {
+        background: #f6f8fa;
+        color: #111;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2 style="margin-top: 0">Kijelentkezés</h2>
+      <p>Biztosan ki szeretnél jelentkezni?</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+          <button class="btn" type="submit">Igen, kijelentkezem</button>
+          <a class="btn ghost" href="{% url 'photo_list' %}">Mégse</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
