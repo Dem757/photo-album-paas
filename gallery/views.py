@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Photo
-from .forms import PhotoForm
-from django.contrib.auth.forms import UserCreationForm
+from .forms import PhotoForm, UserRegisterForm
 from django.contrib import messages
 
 def photo_list(request):
