@@ -1,0 +1,37 @@
+<h2>Fényképalbum</h2>
+
+<div>
+    Rendezés: 
+    <a href="?sort=name">Név (A-Z)</a> | 
+    <a href="?sort=-uploaded_at">Legfrissebb elől</a>
+</div>
+
+<hr>
+
+{% if user.is_authenticated %}
+    <p>Üdv, {{ user.username }}! <a href="{% url 'logout' %}">Kijelentkezés</a></p>
+    <a href="{% url 'photo_upload' %}">Új kép feltöltése</a>
+{% else %}
+    <p><a href="{% url 'login' %}">Bejelentkezés</a> vagy <a href="{% url 'register' %}">Regisztráció</a></p>
+{% endif %}
+
+<ul>
+{% for photo in photos %}
+    <li>
+        <strong>{{ photo.name }}</strong> 
+        ({{ photo.uploaded_at|date:"Y-m-d H:i" }})
+        <br>
+        <a href="{{ photo.image.url }}">
+            <img src="{{ photo.image.url }}" width="100" alt="{{ photo.name }}">
+        </a>
+        {% if user.is_authenticated and photo.user == user %}
+            <form action="{% url 'photo_delete' photo.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Törlés</button>
+            </form>
+        {% endif %}
+    </li>
+{% empty %}
+    <li>Még nincs kép feltöltve.</li>
+{% endfor %}
+</ul>
