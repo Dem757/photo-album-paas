@@ -1,64 +1,55 @@
-# Photo Album PaaS - Django & OKD Project
+# Photo Album PaaS Application
 
-This is a multi-tier, scalable web application designed for uploading and organizing photos into a gallery. The project demonstrates PaaS-based (OKD/OpenShift) application management, automated build pipelines, and persistent cloud storage.
+This project is a multi-tier web application designed for a Cloud Network Services laboratory environment (BMEVITMMB11). The application is built using the Django framework and is deployed on the OKD (Origin Community Distribution of Kubernetes) platform at fured.cloud.bme.hu.
 
----
+## Architectural Overview
 
-## 🏗 Architecture (Multi-tier)
+The application follows a cloud-native, multi-tier architecture to ensure separation of concerns, scalability, and data persistence.
 
-Following modern cloud-native principles, the application is divided into four distinct layers:
+### 1. Presentation and Application Tier
 
-| Tier | Description |
+- **Framework:** Django
+- **WSGI Server:** Gunicorn
+- **Static Files:** WhiteNoise is integrated to serve static assets directly through the application server, eliminating the need for a separate Nginx container in this PaaS environment.
+- **Security:** Configured to handle SSL termination at the OKD Route level using `SECURE_PROXY_SSL_HEADER` and `CSRF_TRUSTED_ORIGINS`.
+
+### 2. Database Tier
+
+- **Engine:** PostgreSQL 18
+- **Deployment:** A standalone containerized database service.
+- **Connectivity:** The application connects to the database via an internal Service DNS name, using environment variables for authentication.
+
+### 3. Storage and Persistence Tier
+
+- **Media Storage:** A 1GiB Persistent Volume Claim (PVC) is mounted at `/app/media` to ensure that uploaded photographs are preserved across container restarts and redeployments.
+- **Database Persistence:** A separate 1GiB PVC is mounted at `/var/lib/postgresql` for the PostgreSQL service to ensure data integrity and persistence.
+
+## Deployment and CI/CD
+
+The deployment process is fully automated to demonstrate modern DevOps practices.
+
+- **Build Strategy:** The project utilizes a `DockerStrategy` build, using a custom `Dockerfile` based on `python:3.12-slim`. This ensures environment consistency regardless of the platform's built-in images.
+- **Automation:** GitHub Webhooks are configured to trigger a new build and rolling update automatically upon every code push.
+- **Database Migrations:** Database schema synchronization is automated within the container startup command (`python manage.py migrate`), ensuring the database tier is always up to date with the application logic.
+
+## Configuration
+
+The application is configured through OKD environment variables to maintain security and flexibility:
+
+| Variable | Purpose |
 |---|---|
-| **Presentation Tier** | Powered by the Gunicorn WSGI server. Static file delivery is handled by WhiteNoise, ensuring CSS and JS are served efficiently without a separate Nginx container. |
-| **Application Tier (Logic)** | A Django framework application running in a specialized Docker container. |
-| **Data Tier** | A standalone PostgreSQL 18 container providing robust, structured data storage. |
-| **Storage Tier** | A Persistent Volume Claim (PVC) ensures that uploaded media files remain intact across container restarts and redeployments. |
+| `DATABASE_URL` | Defines the connection parameters for the PostgreSQL instance. |
+| `ALLOWED_HOSTS` | Security filter for the OKD Route domain. |
+| `CSRF_TRUSTED_ORIGINS` | Ensures secure form submissions over HTTPS. |
+| `SECURE_PROXY_SSL_HEADER` | Informs Django about the secure nature of the connection behind the OKD load balancer. |
 
----
+## Scalability
 
-## 🚀 Deployment and Build Process
+The application is designed to be stateless in its application tier. Since both data (PostgreSQL) and files (PVC) are offloaded to dedicated persistent tiers, the Django application can be scaled horizontally by increasing the number of Pod replicas. Traffic is automatically load-balanced across all healthy instances by the OKD Service.
 
-The application is hosted on the **OKD** (Origin Community Distribution of Kubernetes) platform.
+## Management Commands
 
-### 1. Automated CI/CD (Webhooks)
+Administrative tasks can be performed via the OKD Pod Terminal:
 
-The project is integrated with GitHub. Upon every `git push`, OKD automatically:
-
-- Triggers a new build via **GitHub Webhooks**.
-- Builds a new image based on the provided `Dockerfile` (**DockerStrategy**).
-- Executes automated database migrations (`python manage.py migrate`).
-- Performs a **Rolling Update** to replace old instances with the new version without downtime.
-
-### 2. Dockerfile Strategy
-
-To ensure environment independence and bypass internal OKD Builder Image limitations, a custom `Dockerfile` is used:
-
-- **Base Image:** `python:3.12-slim` for a lightweight footprint.
-- **Database Driver:** `psycopg2-binary` for reliable PostgreSQL communication.
-- **Execution:** Automated migration scripts are bundled into the container startup command.
-
----
-
-## ⚙️ Configuration (Environment Variables)
-
-Sensitive data and inter-tier connections are managed via OKD Environment Variables:
-
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | Connection string for PostgreSQL (user, pass, host, db). |
-| `ALLOWED_HOSTS` | Security filter for the OKD route (set to `*` or specific domain). |
-| `CSRF_TRUSTED_ORIGINS` | Trusted origins for secure SSL/HTTPS form submissions. |
-| `SECURE_PROXY_SSL_HEADER` | Tells Django the request is secure (HTTPS) despite the SSL proxy. |
-
----
-
-## 📈 Scalability and Persistence
-
-### Horizontal Scalability
-
-Because the application is **Stateless** (storing data and files in separate tiers), it can be scaled horizontally. The number of Pods can be increased at any time; the OKD Service will automatically load-balance traffic between them.
-
-### Persistent Storage
-
-Uploaded photos are stored in the `/app/media` directory, which is mounted to a **1GiB Persistent Volume Claim**. This prevents data loss during container restarts or build updates, solving the ephemeral file system limitation of standard containers.
+- **Create Administrative User:** `python manage.py createsuperuser`
+- **Manual Migration:** `python manage.py migrate`
