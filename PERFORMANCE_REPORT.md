@@ -19,8 +19,8 @@ The test script simulates a mix of functional user behaviors:
 - **Processing Load**: Triggering server-side sorting logic via query parameters.
 
 ## 3. Execution Parameters
-- **Simulated Users**: 50 concurrent users.
-- **Spawn Rate**: 10 users per second.
+- **Simulated Users**: 75 concurrent users.
+- **Spawn Rate**: 5 users per second.
 - **Duration**: Until maximum scale-out (5 replicas) was achieved and stabilized.
 
 ## 4. Auto-scaling Evidence
