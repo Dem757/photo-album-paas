@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-85mbd21#3i^(!_h_yij_f3)g8*4=5xq!4c1@=lynm&-+%kmspu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-photo-album.apps.okd.fured.cloud.bme.hu', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['django', 'django-photo-album.apps.okd.fured.cloud.bme.hu', 'localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://django-photo-album.apps.okd.fured.cloud.bme.hu',
