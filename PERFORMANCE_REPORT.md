@@ -48,6 +48,13 @@ Once all 5 replicas were operational, the average response time decreased and st
 
 ![Locust Statistics](screenshots/locust_stats.png)
 
+### Request and Failure Trends (Locust Chart)
+The Locust chart below visualizes request throughput and failures over time during the load test window.
+
+![Locust Requests and Failures](screenshots/locust_charts.png)
+
+The chart confirms that request volume increased during the ramp-up phase, while failures stayed comparatively low after the initial configuration fixes.
+
 ### Downscaling Phase
 Approximately 5 minutes after the load test was terminated, the HPA observed the drop in CPU utilization (returning to <5%) and began terminating redundant replicas until the count returned to the minimum value (1 Pod).
 
