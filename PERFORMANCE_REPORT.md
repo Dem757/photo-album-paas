@@ -33,7 +33,7 @@ As CPU utilization exceeded the 40% threshold (reaching approximately 85% during
 ![Topology during peak load](screenshots/topology_scaling.png)
 
 ### Stabilization
-Once all 5 replicas were operational, the average response time decreased and stabilized, despite the high concurrent user count. The error rate remained at 1% after correcting initial configuration bottlenecks.
+Once all 5 replicas were operational, the average response time decreased and stabilized, despite the high concurrent user count. The error rate remained at around 5% after correcting initial configuration bottlenecks.
 
 ![Locust Statistics](screenshots/locust_stats.png)
 
