@@ -60,3 +60,31 @@ An HPA is configured to monitor the application tier:
 Administrative tasks can be performed via the OKD Pod Terminal:
 - **Create Administrative User:** `python manage.py createsuperuser`
 - **Manual Migration:** `python manage.py migrate`
+
+## Performance Testing
+
+Load testing assets are located in `performance-testing/` and are executed with Locust.
+
+### Simulated User Behavior
+The current Locust scenario (`performance-testing/locustfile.py`) simulates:
+- Gallery browsing (`/`)
+- Login page access (`/accounts/login/`)
+- Sorted gallery views (`/?sort=...`)
+- Authenticated photo upload (`/upload/`) with multipart image data
+
+Each virtual user establishes an authenticated session in `on_start`.
+
+### Authenticated Upload Test Modes
+Two modes are supported for login credentials:
+- **Fixed credentials**: Set `LOCUST_USERNAME` and `LOCUST_PASSWORD` to log in with an existing account.
+- **Auto-register mode**: If `LOCUST_USERNAME` is not provided, each virtual user creates a unique account via `/register/`, then logs in and uploads images as that user.
+
+### Example Run
+```bash
+cd performance-testing
+locust -f locustfile.py --host http://django:8080
+```
+
+Optional environment variables:
+- `LOCUST_USERNAME`
+- `LOCUST_PASSWORD`

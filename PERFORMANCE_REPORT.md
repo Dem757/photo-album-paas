@@ -15,8 +15,19 @@ The objective of this performance test is to validate the Horizontal Pod Autosca
 ### Locust Configuration (`locustfile.py`)
 The test script simulates a mix of functional user behaviors:
 - **Gallery Access**: Continuous GET requests to the home page (Read-heavy).
-- **Authentication Stress**: Accessing the Django admin and login endpoints.
+- **Authentication Flow**: Session initialization with login at `/accounts/login/`.
+- **Optional Auto-Registration**: If explicit credentials are not provided, virtual users create unique accounts via `/register/` before login.
 - **Processing Load**: Triggering server-side sorting logic via query parameters.
+- **Write Workload**: Authenticated multipart image upload to `/upload/` with CSRF-protected form submission.
+
+### Authenticated Upload Methodology
+To model real user write traffic, each virtual user performs the following sequence:
+1. Fetch login form and extract CSRF token.
+2. Log in with either preconfigured credentials (`LOCUST_USERNAME` / `LOCUST_PASSWORD`) or a newly created account.
+3. Fetch upload form and extract CSRF token.
+4. Submit a multipart upload request containing a generated image name and a valid PNG payload.
+
+This ensures upload requests are executed within authenticated Django sessions and exercises both session handling and media write paths.
 
 ## 3. Execution Parameters
 - **Simulated Users**: 75 concurrent users.
