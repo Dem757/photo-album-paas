@@ -1,6 +1,7 @@
 resource "kubernetes_persistent_volume_claim_v1" "postgres_pvc" {
   metadata {
-    name = "postgres-pvc"
+    name      = "postgres-pvc"
+    namespace = var.namespace
   }
   spec {
     access_modes = ["ReadWriteMany"]
@@ -14,7 +15,8 @@ resource "kubernetes_persistent_volume_claim_v1" "postgres_pvc" {
 
 resource "kubernetes_service_v1" "postgres_svc" {
   metadata {
-    name = "postgres"
+    name      = "postgres"
+    namespace = var.namespace
   }
   spec {
     selector = { app = "postgres" }
@@ -27,7 +29,8 @@ resource "kubernetes_service_v1" "postgres_svc" {
 
 resource "kubernetes_deployment_v1" "postgres" {
   metadata {
-    name = "postgres"
+    name      = "postgres"
+    namespace = var.namespace
   }
   spec {
     replicas = 1
@@ -72,7 +75,8 @@ resource "kubernetes_deployment_v1" "postgres" {
 
 resource "kubernetes_deployment_v1" "django" {
   metadata {
-    name = "django"
+    name      = "django"
+    namespace = var.namespace
   }
   spec {
     replicas = 1

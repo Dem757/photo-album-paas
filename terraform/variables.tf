@@ -19,3 +19,9 @@ variable "django_image" {
   description = "A Django alkalmazás image elérhetősége"
   type        = string
 }
+
+variable "namespace" {
+  description = "OKD namespace/project where resources are deployed"
+  type        = string
+  default     = "postgres-app"
+}
