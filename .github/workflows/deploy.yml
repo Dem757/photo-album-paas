@@ -97,5 +97,15 @@ jobs:
 
       - name: Run Django Migrations
         run: |
-          pod_name=$(kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album get pod -l app=django -o jsonpath='{.items[0].metadata.name}')
-          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album exec "$pod_name" -- python manage.py migrate --noinput
+          for i in {1..20}; do
+            pod_name=$(kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album get pods -l app=django --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+            if [ -n "$pod_name" ]; then
+              echo "Using pod: $pod_name"
+              kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album exec "$pod_name" -- python manage.py migrate --noinput && exit 0
+            fi
+            echo "Waiting for a running django pod... ($i/20)"
+            sleep 10
+          done
+          echo "No stable running django pod found to execute migrations"
+          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album get pods -l app=django -o wide || true
+          exit 1
