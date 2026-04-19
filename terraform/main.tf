@@ -13,6 +13,21 @@ resource "kubernetes_persistent_volume_claim_v1" "postgres_pvc" {
   }
 }
 
+resource "kubernetes_persistent_volume_claim_v1" "media_pvc" {
+  metadata {
+    name      = "media-pvc"
+    namespace = var.namespace
+  }
+  spec {
+    access_modes = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "1Gi"
+      }
+    }
+  }
+}
+
 resource "kubernetes_service_v1" "postgres_svc" {
   metadata {
     name      = "postgres"
@@ -103,9 +118,13 @@ resource "kubernetes_deployment_v1" "django" {
         labels = { app = "django" }
       }
       spec {
+        security_context {
+          fs_group               = 1000
+          fs_group_change_policy = "OnRootMismatch"
+        }
         container {
-          name  = "django"
-          image = var.django_image
+          name              = "django"
+          image             = var.django_image
           image_pull_policy = "Always"
           env {
             name  = "DATABASE_URL"
@@ -118,6 +137,16 @@ resource "kubernetes_deployment_v1" "django" {
           env {
             name  = "CSRF_TRUSTED_ORIGINS"
             value = "https://django-photo-album.apps.okd.fured.cloud.bme.hu"
+          }
+          volume_mount {
+            name       = "media"
+            mount_path = "/app/media"
+          }
+        }
+        volume {
+          name = "media"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim_v1.media_pvc.metadata[0].name
           }
         }
       }
