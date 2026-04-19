@@ -88,3 +88,8 @@ jobs:
               termination: edge
           EOF
         working-directory: ./terraform
+
+      - name: Restart Django Deployment
+        run: |
+          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album rollout restart deployment/django
+          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album rollout status deployment/django --timeout=5m

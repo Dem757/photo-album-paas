@@ -106,6 +106,7 @@ resource "kubernetes_deployment_v1" "django" {
         container {
           name  = "django"
           image = var.django_image
+          image_pull_policy = "Always"
           env {
             name  = "DATABASE_URL"
             value = "postgres://admin:${var.db_password}@postgres:5432/photo_db"
