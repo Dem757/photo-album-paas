@@ -124,26 +124,3 @@ resource "kubernetes_deployment_v1" "django" {
   }
 }
 
-resource "kubernetes_manifest" "django_route" {
-  manifest = {
-    apiVersion = "route.openshift.io/v1"
-    kind       = "Route"
-    metadata = {
-      name      = "django"
-      namespace = var.namespace
-    }
-    spec = {
-      host = "django-photo-album.apps.okd.fured.cloud.bme.hu"
-      to = {
-        kind = "Service"
-        name = kubernetes_service_v1.django_svc.metadata[0].name
-      }
-      port = {
-        targetPort = "http"
-      }
-      tls = {
-        termination = "edge"
-      }
-    }
-  }
-}

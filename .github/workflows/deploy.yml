@@ -38,7 +38,6 @@ jobs:
           terraform import -input=false kubernetes_service_v1.django_svc photo-album/django || true
           terraform import -input=false kubernetes_deployment_v1.postgres photo-album/postgres || true
           terraform import -input=false kubernetes_deployment_v1.django photo-album/django || true
-          terraform import -input=false kubernetes_manifest.django_route "apiVersion=route.openshift.io/v1,kind=Route,namespace=photo-album,name=django" || true
         working-directory: ./terraform
         env:
           KUBE_HOST: "https://api.okd.fured.cloud.bme.hu:6443"
@@ -49,6 +48,10 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_django_image: "image-registry.openshift-image-registry.svc:5000/photo-album/django:latest"
           TF_VAR_namespace: "photo-album"
+
+      - name: Remove stale Route state
+        run: terraform state rm kubernetes_manifest.django_route || true
+        working-directory: ./terraform
 
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve
@@ -62,3 +65,26 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_django_image: "image-registry.openshift-image-registry.svc:5000/photo-album/django:latest"
           TF_VAR_namespace: "photo-album"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Create Django Route
+        run: |
+          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true apply -f - <<'EOF'
+          apiVersion: route.openshift.io/v1
+          kind: Route
+          metadata:
+            name: django
+            namespace: photo-album
+          spec:
+            host: django-photo-album.apps.okd.fured.cloud.bme.hu
+            to:
+              kind: Service
+              name: django
+            port:
+              targetPort: http
+            tls:
+              termination: edge
+          EOF
+        working-directory: ./terraform
