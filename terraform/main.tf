@@ -104,6 +104,7 @@ resource "kubernetes_deployment_v1" "postgres" {
 }
 
 resource "kubernetes_deployment_v1" "django" {
+  wait_for_rollout = false
   metadata {
     name      = "django"
     namespace = var.namespace

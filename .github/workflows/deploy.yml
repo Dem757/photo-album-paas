@@ -34,6 +34,7 @@ jobs:
       - name: Terraform Import Existing Resources
         run: |
           terraform import -input=false kubernetes_persistent_volume_claim_v1.postgres_pvc photo-album/postgres-pvc || true
+          terraform import -input=false kubernetes_persistent_volume_claim_v1.media_pvc photo-album/media-pvc || true
           terraform import -input=false kubernetes_service_v1.postgres_svc photo-album/postgres || true
           terraform import -input=false kubernetes_service_v1.django_svc photo-album/django || true
           terraform import -input=false kubernetes_deployment_v1.postgres photo-album/postgres || true
@@ -92,7 +93,7 @@ jobs:
       - name: Restart Django Deployment
         run: |
           kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album rollout restart deployment/django
-          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album rollout status deployment/django --timeout=5m
+          kubectl --server="https://api.okd.fured.cloud.bme.hu:6443" --token="${{ secrets.OKD_TOKEN }}" --insecure-skip-tls-verify=true -n photo-album rollout status deployment/django --timeout=10m
 
       - name: Run Django Migrations
         run: |
