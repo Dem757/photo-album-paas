@@ -17,5 +17,5 @@ COPY . /app/
 # Port megnyitása (OpenShift/OKD alapértelmezettje a 8080)
 EXPOSE 8080
 
-# Az alkalmazás indítása Gunicorn-nal
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "core.wsgi:application"]
+# Az alkalmazás indítása előtt futtatjuk a migrációkat, majd Gunicorn-nal indulunk.
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn --bind 0.0.0.0:8080 core.wsgi:application"]
