@@ -98,7 +98,8 @@ resource "kubernetes_deployment" "django" {
           env {
             name  = "CSRF_TRUSTED_ORIGINS"
             value = "https://django-photo-album.apps.okd.fured.cloud.bme.hu"
-          }  
+          }
+        }
       }
     }
   }
