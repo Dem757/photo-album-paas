@@ -1,5 +1,5 @@
 variable "okd_host" {
-  description = "Az OKD API címe (pl. https://api.fured.cloud.bme.hu:6443)"
+  description = "Az OKD API címe (pl. https://api.okd.fured.cloud.bme.hu:6443)"
   type        = string
 }
 

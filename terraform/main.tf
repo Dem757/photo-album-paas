@@ -1,4 +1,4 @@
-resource "kubernetes_persistent_volume_claim" "postgres_pvc" {
+resource "kubernetes_persistent_volume_claim_v1" "postgres_pvc" {
   metadata {
     name = "postgres-pvc"
   }
@@ -12,7 +12,7 @@ resource "kubernetes_persistent_volume_claim" "postgres_pvc" {
   }
 }
 
-resource "kubernetes_service" "postgres_svc" {
+resource "kubernetes_service_v1" "postgres_svc" {
   metadata {
     name = "postgres"
   }
@@ -25,7 +25,7 @@ resource "kubernetes_service" "postgres_svc" {
   }
 }
 
-resource "kubernetes_deployment" "postgres" {
+resource "kubernetes_deployment_v1" "postgres" {
   metadata {
     name = "postgres"
   }
@@ -62,7 +62,7 @@ resource "kubernetes_deployment" "postgres" {
         volume {
           name = "pgdata"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.postgres_pvc.metadata[0].name
+            claim_name = kubernetes_persistent_volume_claim_v1.postgres_pvc.metadata[0].name
           }
         }
       }
@@ -70,7 +70,7 @@ resource "kubernetes_deployment" "postgres" {
   }
 }
 
-resource "kubernetes_deployment" "django" {
+resource "kubernetes_deployment_v1" "django" {
   metadata {
     name = "django"
   }
