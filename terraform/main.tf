@@ -119,10 +119,6 @@ resource "kubernetes_deployment_v1" "django" {
         labels = { app = "django" }
       }
       spec {
-        security_context {
-          fs_group               = 1000
-          fs_group_change_policy = "OnRootMismatch"
-        }
         container {
           name              = "django"
           image             = var.django_image
