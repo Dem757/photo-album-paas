@@ -23,5 +23,5 @@ variable "django_image" {
 variable "namespace" {
   description = "OKD namespace/project where resources are deployed"
   type        = string
-  default     = "postgres-app"
+  default     = "photo-album"
 }

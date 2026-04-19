@@ -23,7 +23,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: ./terraform
         env:
           KUBE_HOST: "https://api.okd.fured.cloud.bme.hu:6443"
@@ -31,8 +31,25 @@ jobs:
           KUBE_INSECURE: "true"
           TF_VAR_okd_host: "https://api.okd.fured.cloud.bme.hu:6443"
 
+      - name: Terraform Import Existing Resources
+        run: |
+          terraform import -input=false kubernetes_persistent_volume_claim_v1.postgres_pvc photo-album/postgres-pvc || true
+          terraform import -input=false kubernetes_service_v1.postgres_svc photo-album/postgres || true
+          terraform import -input=false kubernetes_deployment_v1.postgres photo-album/postgres || true
+          terraform import -input=false kubernetes_deployment_v1.django photo-album/django || true
+        working-directory: ./terraform
+        env:
+          KUBE_HOST: "https://api.okd.fured.cloud.bme.hu:6443"
+          KUBE_TOKEN: ${{ secrets.OKD_TOKEN }}
+          KUBE_INSECURE: "true"
+          TF_VAR_okd_host: "https://api.okd.fured.cloud.bme.hu:6443"
+          TF_VAR_okd_token: ${{ secrets.OKD_TOKEN }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_django_image: "image-registry.openshift-image-registry.svc:5000/photo-album/django:latest"
+          TF_VAR_namespace: "photo-album"
+
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -input=false -auto-approve
         working-directory: ./terraform
         env:
           KUBE_HOST: "https://api.okd.fured.cloud.bme.hu:6443"
