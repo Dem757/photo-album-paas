@@ -27,6 +27,21 @@ resource "kubernetes_service_v1" "postgres_svc" {
   }
 }
 
+resource "kubernetes_service_v1" "django_svc" {
+  metadata {
+    name      = "django"
+    namespace = var.namespace
+  }
+  spec {
+    selector = { app = "django" }
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+  }
+}
+
 resource "kubernetes_deployment_v1" "postgres" {
   metadata {
     name      = "postgres"
@@ -104,6 +119,30 @@ resource "kubernetes_deployment_v1" "django" {
             value = "https://django-photo-album.apps.okd.fured.cloud.bme.hu"
           }
         }
+      }
+    }
+  }
+}
+
+resource "kubernetes_manifest" "django_route" {
+  manifest = {
+    apiVersion = "route.openshift.io/v1"
+    kind       = "Route"
+    metadata = {
+      name      = "django"
+      namespace = var.namespace
+    }
+    spec = {
+      host = "django-photo-album.apps.okd.fured.cloud.bme.hu"
+      to = {
+        kind = "Service"
+        name = kubernetes_service_v1.django_svc.metadata[0].name
+      }
+      port = {
+        targetPort = "http"
+      }
+      tls = {
+        termination = "edge"
       }
     }
   }

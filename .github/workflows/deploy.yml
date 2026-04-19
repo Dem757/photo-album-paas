@@ -35,8 +35,10 @@ jobs:
         run: |
           terraform import -input=false kubernetes_persistent_volume_claim_v1.postgres_pvc photo-album/postgres-pvc || true
           terraform import -input=false kubernetes_service_v1.postgres_svc photo-album/postgres || true
+          terraform import -input=false kubernetes_service_v1.django_svc photo-album/django || true
           terraform import -input=false kubernetes_deployment_v1.postgres photo-album/postgres || true
           terraform import -input=false kubernetes_deployment_v1.django photo-album/django || true
+          terraform import -input=false kubernetes_manifest.django_route "apiVersion=route.openshift.io/v1,kind=Route,namespace=photo-album,name=django" || true
         working-directory: ./terraform
         env:
           KUBE_HOST: "https://api.okd.fured.cloud.bme.hu:6443"
